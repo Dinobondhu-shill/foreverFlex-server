@@ -57,10 +57,31 @@ res.send({success:true, message:"Product has been added successfully"})
 }
 
 const deleteProduct = async (req, res) => {
-
+  try {
+    await productModel.findByIdAndDelete(req.body.id)
+  res.send({success:true, message:"Your product has been deleted"})
+  } catch (error) {
+    console.log(error)
+    res.send({
+      success: false,
+      message: error.message
+    })
+  }
 }
 
 const listProduct = async (req, res) => {
+
+  try {
+    const products = await productModel.find({});
+    res.send({success:true, products})
+  } catch (error) {
+    console.log(error)
+    res.send({
+      success: false,
+      message: error.message
+    })
+    
+  }
 
 }
 
