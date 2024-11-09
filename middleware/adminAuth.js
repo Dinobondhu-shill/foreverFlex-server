@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken"
 
 const adminAuth = async (req, res, next) => {
-  const {
-    token
-  } = req.header;
+  const token = req.headers.authorization.split(" ")[1];
+  console.log(token)
   if (!token) {
     return res.send({
       success: false,
@@ -14,8 +13,9 @@ const adminAuth = async (req, res, next) => {
   if (decode_token !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
     return res.send({
       success: false,
-      message: "Not Authorized login again"
+      message: "No Authorization"
     })
   }
   next()
 }
+export default adminAuth;
