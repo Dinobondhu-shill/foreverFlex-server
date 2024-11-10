@@ -14,12 +14,11 @@ const addProduct = async (req, res) => {
       description,
     } = req.body;
 
-    // Extract images, ensuring they're in the correct format
-    const image1 = req.body.image1 && req.body.image1[0];
-    const image2 = req.body.image2 && req.body.image2[0];
-    const image3 = req.body.image3 && req.body.image3[0];
-    const image4 = req.body.image4 && req.body.image4[0];
-    const images = [image1, image2, image3, image4].filter(Boolean);
+const image1 = req.files.image1 ? req.files.image1[0] : null;
+const image2 = req.files.image2 ? req.files.image2[0] : null;
+const image3 = req.files.image3 ? req.files.image3[0] : null;
+const image4 = req.files.image4 ? req.files.image4[0] : null;
+const images = [image1, image2, image3, image4].filter(Boolean);;
 
     // Upload images to Cloudinary
     let imagesUrl = await Promise.all(
@@ -34,6 +33,13 @@ const addProduct = async (req, res) => {
       })
     );
 
+    let parsedSizes;
+    try {
+      parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
+    } catch (err) {
+      console.error("Failed to parse sizes:", err);
+      parsedSizes = []; // or handle the error as appropriate
+    }
     // Construct the product data
     const productData = {
       name,
@@ -42,12 +48,12 @@ const addProduct = async (req, res) => {
       subCategory,
       description,
       bestSeller: bestSeller === "true", // Convert string to boolean
-      sizes: Array.isArray(sizes) ? sizes : JSON.parse(sizes), // Ensure sizes is an array
+      sizes: parsedSizes, 
       imagesUrl,
       date: Date.now(), // Fix date property
     };
-
-    // Save the product to the database
+    
+    console.log("Final productData:", productData);
     const product = new productModel(productData);
     await product.save();
 
