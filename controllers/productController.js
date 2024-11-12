@@ -69,8 +69,12 @@ const images = [image1, image2, image3, image4].filter(Boolean);;
 
 const deleteProduct = async (req, res) => {
   try {
-    await productModel.findByIdAndDelete(req.body.id)
-  res.send({success:true, message:"Your product has been deleted"})
+    const deletedProduct = await productModel.findByIdAndDelete(req.body.id);
+    if (deletedProduct) {
+      res.send({ success: true, message: "Your product has been deleted" });
+    } else {
+      res.send({ success: false, message: "Product not found" });
+    }
   } catch (error) {
     console.log(error)
     res.send({

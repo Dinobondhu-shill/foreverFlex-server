@@ -52,9 +52,6 @@ const registerUser = async (req, res) => {
     if (!validator.isEmail(email)) {
       return res.send({success:false, message:"Please Enter a valid Email"})
     }
-    if (!validator.isMobilePhone(phone, 'bn-BD')) {
-      return res.status(400).json({ success: false, message: "Please enter a valid phone number" });
-    }
     if (password.length < 8) {
       return res.send({success:false, message:"Please Enter a Strong Password"})
     }
@@ -67,8 +64,7 @@ const registerUser = async (req, res) => {
       name, 
       email,
       password:hashedPassword,
-      phone,
-      image
+      phone, image
     })
     const user = await newUser.save()
 
