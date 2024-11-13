@@ -12,7 +12,7 @@ const addToCart = async (req, res) => {
     const userData = await userModel.findById(userId);
     let cartData = await userData.cartData;
 
-    if (cartdata[itemId]) {
+    if (cartData[itemId]) {
       if (cartData[itemId][size]) {
         cartData[itemId][size] += 1;
       } else {
@@ -66,9 +66,9 @@ const getCartData = async (req, res) => {
   try {
     const {userId } = req.body;
     const userData = await userModel.findById(userId);
+    console.log(userData)
     let cartData = await userData.cartData;
-
-  res.send({success:true, cartData: userData.cartData})
+  res.send({success:true, cartData})
   } catch (error) {
     console.log(error)
     res.send({success:false, message:error.message})
