@@ -16,17 +16,16 @@ connectDB();
 connectCloudinary();
 
 // Middleware 
-app.use(express.json());
+
 let corsOptions = {
   origin: (origin, callback) => {
-    // If the origin is undefined (e.g., server-to-server calls) or included in allowed list
     const allowedOrigins = [
       "http://localhost:3000",
       "https://localhost:5173",
       "https://your-frontend-url.vercel.app",
-      /\.vercel\.app$/,  // Allows subdomains on vercel.app
+      undefined  // Allow undefined origins (like file:///) in development
     ];
-    if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -34,11 +33,9 @@ let corsOptions = {
   }
 };
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(cors());
-} else {
-  app.use(cors(corsOptions));
-}
+
+app.use(cors(corsOptions));
+app.use(express.json());
 
 // API endpoints 
 app.use('/api/user', userRouter);
