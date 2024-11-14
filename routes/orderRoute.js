@@ -15,6 +15,6 @@ orderRouter.post('/my-orders',userAuth, userOrders)
 
 // admin features
 orderRouter.post('/all-order',adminAuth ,allOrders)
-orderRouter.post('update-status',adminAuth , UpdateOrderStatus)
+orderRouter.post('/update-status',adminAuth , UpdateOrderStatus)
 
 export default orderRouter;

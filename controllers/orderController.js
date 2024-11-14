@@ -64,9 +64,29 @@ const userOrders = async (req, res) => {
 };
 
 // update order status
+const UpdateOrderStatus = async (req, res) => {
+  try {
+    const { status, id } = req.body;
 
-const UpdateOrderStatus = async (req, res) =>{
+    // Validate request body
+    if (!status || !id) {
+      return res.status(400).send({ success: false, message: "Status and ID are required" });
+    }
 
-}
+    // Update order status in the database
+    const updatedOrder = await orderModel.findByIdAndUpdate(id, { status }, { new: true });
+
+    // Check if the order was found and updated
+    if (!updatedOrder) {
+      return res.status(404).send({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).send({ success: true, message: "Order updated successfully", updatedOrder });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ success: false, message: "Server error", error: error.message });
+  }
+};
+
 
 export {placeOrder, placeOrderStripe, allOrders, userOrders, UpdateOrderStatus} ;
