@@ -1,12 +1,12 @@
 import express from "express";
 import cors from 'cors';
-import 'dotenv/config'
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinari.js";
 import userRouter from "./routes/userRoute.js";
 import productRoute from "./routes/productRoute.js";
 import cartsRoute from "./routes/cartRout.js";
 import orderRouter from "./routes/orderRoute.js";
+require("dotenv").config();
 
 // App config 
 const app = express();
@@ -16,7 +16,11 @@ connectCloudinary();
 
 // Middleware 
 app.use(express.json());
-app.use(cors());
+let corsOptions = {
+  origin: ["http://localhost:3000", "https://localhost:5173"]
+};
+
+app.use(cors(corsOptions));
 
 // Api endpoints 
 app.use('/api/user', userRouter)
