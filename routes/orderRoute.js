@@ -11,7 +11,7 @@ orderRouter.post('/place',userAuth, placeOrder)
 orderRouter.post('/placeWithStripe',userAuth, placeOrderStripe)
 
 // users features
-orderRouter.post('/user-order',userAuth, userOrders)
+orderRouter.post('/my-orders',userAuth, userOrders)
 
 // admin features
 orderRouter.post('/all-order',adminAuth ,allOrders)

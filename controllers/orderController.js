@@ -39,13 +39,29 @@ const placeOrderStripe = async (req, res) =>{
 // order data for Admin Panel
 
 const allOrders = async (req, res) =>{
+  try {
+
+    const orderData = await orderModel.find({});
+    res.send({success:true, orderData})
+    
+  } catch (error) {
+    console.log(error);
+    res.send({ success: false, message: error.message });
+  }
 
 }
 // order data for Frontend 
 
-const userOrders = async (req, res) =>{
-
-}
+const userOrders = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const orderData = await orderModel.find({ userId }).populate('items.productId'); // Assumes items.productId refers to the product model
+    res.send({ success: true, orderData });
+  } catch (error) {
+    console.log(error);
+    res.send({ success: false, message: error.message });
+  }
+};
 
 // update order status
 
