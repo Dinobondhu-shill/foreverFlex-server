@@ -1,5 +1,15 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import Stripe from 'stripe'
+
+
+
+const currency = 'bdt'
+const deliveryCharges = 10;
+
+// gateway initialization
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 // placing order using COD method
 
@@ -26,14 +36,81 @@ res.send({success:true, message: "Order has been placed"})
     console.log(error)
     res.send({success:false, message:error.message})
   }
+}
+// verify stripe 
+const verifyStripe = async (req, res) =>{
+  const {orderId, success, userId} = req.body;
 
-
+  try {
+    if(success ==='true'){
+      await orderModel.findByIdAndUpdate(orderId, {payment:true})
+      await userModel.findByIdAndUpdate(userId, {cartData:{}});
+      res.send({success:true})
+    }
+    else{
+      await orderModel.findByIdAndDelete(orderId)
+      res.send({success:false})
+    }
+  } catch (error) {
+    console.log(error)
+    res.send({success:false, message:error.message})
+  }
 }
 
 // placing order using Stripe method
 
 const placeOrderStripe = async (req, res) =>{
+  try {
+    const {userId, items, address, amount} = req.body;
+    const {origin} = req.headers
 
+  const orderData = {
+    userId,
+    items,
+    address,
+    amount, 
+    paymentMethod: "Stripe",
+    payment:false,
+    date: Date.now()
+  }
+const newOrder = await orderModel(orderData)
+await newOrder.save()
+
+const line_items = items.map((item)=>(
+ { price_data:{
+    currency:currency,
+    product_data:{
+      name:item.name
+    },
+    unit_amount:item.price * 100
+  },
+  quantity:item.quantity
+}
+));
+
+line_items.push({
+  price_data:{
+    currency:currency,
+    product_data:{
+      name:"Delivery fee"
+    },
+    unit_amount:deliveryCharges * 100
+  },
+  quantity:1
+})
+
+const session = await stripe.checkout.sessions.create({
+  success_url:`${origin}/verify?success=true&oderId=${newOrder._id}`,
+   cancel_url:`${origin}/verify?success=false&oderId=${newOrder._id}`,
+   line_items,
+   mode:"payment"
+})
+res.send({success:true, session_url:session.url})
+
+} catch (error) {
+  console.log(error)
+  res.send({success:false, message:error.message})
+}
 }
 
 // order data for Admin Panel
@@ -89,4 +166,4 @@ const UpdateOrderStatus = async (req, res) => {
 };
 
 
-export {placeOrder, placeOrderStripe, allOrders, userOrders, UpdateOrderStatus} ;
+export {verifyStripe, placeOrder, placeOrderStripe, allOrders, userOrders, UpdateOrderStatus} ;
