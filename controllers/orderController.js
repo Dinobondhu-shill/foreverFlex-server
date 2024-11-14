@@ -37,25 +37,7 @@ res.send({success:true, message: "Order has been placed"})
     res.send({success:false, message:error.message})
   }
 }
-// verify stripe 
-const verifyStripe = async (req, res) =>{
-  const {orderId, success, userId} = req.body;
 
-  try {
-    if(success ==='true'){
-      await orderModel.findByIdAndUpdate(orderId, {payment:true})
-      await userModel.findByIdAndUpdate(userId, {cartData:{}});
-      res.send({success:true})
-    }
-    else{
-      await orderModel.findByIdAndDelete(orderId)
-      res.send({success:false})
-    }
-  } catch (error) {
-    console.log(error)
-    res.send({success:false, message:error.message})
-  }
-}
 
 // placing order using Stripe method
 
@@ -100,7 +82,7 @@ line_items.push({
 })
 
 const session = await stripe.checkout.sessions.create({
-  success_url:`${origin}/verify?success=true&oderId=${newOrder._id}`,
+  success_url:`${origin}/verify?success=true&orderId=${newOrder._id}`,
    cancel_url:`${origin}/verify?success=false&oderId=${newOrder._id}`,
    line_items,
    mode:"payment"
@@ -111,6 +93,26 @@ res.send({success:true, session_url:session.url})
   console.log(error)
   res.send({success:false, message:error.message})
 }
+}
+
+// verify stripe 
+const verifyStripe = async (req, res) =>{
+  const {orderId, success, userId} = req.body;
+
+  try {
+    if(success ==='true'){
+      await orderModel.findByIdAndUpdate(orderId, { payment: true})
+      await userModel.findByIdAndUpdate(userId, {cartData:{}});
+      res.send({success:true})
+    }
+    else{
+      await orderModel.findByIdAndDelete(orderId)
+      res.send({success:false})
+    }
+  } catch (error) {
+    console.log(error)
+    res.send({success:false, message:error.message})
+  }
 }
 
 // order data for Admin Panel
